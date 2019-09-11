@@ -15,8 +15,6 @@ mapped_IDs <- as.character(mapIds(org.Hs.eg.db, mydata$Genes, 'SYMBOL', 'ENTREZI
 mydata <- cbind(mapped_IDs, mydata$over20x) #Bind mapped_IDs to mydata
 rownames(mydata) <- c() #Remove rownames from data
 
-IDs <- cbind(mydata, attributes(mapped_IDs))
-
 #Define UI for dataset viewer application
 ui <- pageWithSidebar(
   
