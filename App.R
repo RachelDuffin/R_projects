@@ -2,10 +2,17 @@ library(shiny)
 library(tidyverse)
 library(fivethirtyeight)
 library(plotly)
+library(org.Hs.eg.db)
+library(dplyr)
 
 setwd("/home/rduffin/Documents")
 mydata <- read.table("NGS282rpt_01_215344_MH_F_WES47_Pan493_S1.markdup.realigned.chanjo_txt", header = FALSE, col.names = c("Genes", "over20x", "average"), sep = "\t")
 mydata <- mydata[1:2] #remove average column
+mydata <- mydata %>% mutate_all(as.character) #Convert to character
+
+#Map Entrez Identifiers to IDs in mydata
+mapped_IDs <- mapIds(org.Hs.eg.db, mydata$Genes, 'SYMBOL', 'ENTREZID')
+mydata <- cbind(mapped_IDs, mydata$over20x) #Bind mapped_IDs to mydata
 
 #Define UI for dataset viewer application
 ui <- pageWithSidebar(
@@ -17,7 +24,7 @@ ui <- pageWithSidebar(
   # of observations to view
   sidebarPanel(
     selectInput(inputId = "Genename", label = "Enter HGNC gene symbol:", 
-                choices = mydata$Genes, multiple = FALSE)),
+                choices = mapped_IDs, multiple = FALSE)),
   mainPanel(h3("% of bases above 20X"),
             h4(textOutput("caption")),
             plotOutput("myBoxplot"),
