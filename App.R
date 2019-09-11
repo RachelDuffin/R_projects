@@ -11,8 +11,11 @@ mydata <- mydata[1:2] #remove average column
 mydata <- mydata %>% mutate_all(as.character) #Convert to character
 
 #Map Entrez Identifiers to IDs in mydata
-mapped_IDs <- mapIds(org.Hs.eg.db, mydata$Genes, 'SYMBOL', 'ENTREZID')
+mapped_IDs <- as.character(mapIds(org.Hs.eg.db, mydata$Genes, 'SYMBOL', 'ENTREZID'))
 mydata <- cbind(mapped_IDs, mydata$over20x) #Bind mapped_IDs to mydata
+rownames(mydata) <- c() #Remove rownames from data
+
+IDs <- cbind(mydata, attributes(mapped_IDs))
 
 #Define UI for dataset viewer application
 ui <- pageWithSidebar(
@@ -23,7 +26,7 @@ ui <- pageWithSidebar(
   # Sidebar with controls to select a dataset and specify the number
   # of observations to view
   sidebarPanel(
-    selectInput(inputId = "Genename", label = "Enter HGNC gene symbol:", 
+    selectInput(inputId = "IDs", label = "Enter HGNC gene symbol:", 
                 choices = mapped_IDs, multiple = FALSE)),
   mainPanel(h3("% of bases above 20X"),
             h4(textOutput("caption")),
@@ -37,9 +40,9 @@ ui <- pageWithSidebar(
 # Define server logic required to generate and plot boxplots
 server <- function(input, output, session) {
 
-  output$caption <- renderText(input$Genename)
+  output$caption <- renderText(input$IDs)
   
-  output$myBoxplot <- renderPlot({filter(mydata, Genes == input$Genename) %>% (ggplot(aes(y = over20x, x = "")) + geom_point() + geom_boxplot(aes(group = Genes)))
+  output$myBoxplot <- renderPlot({filter(mydata, attributes(mapped_IDs) == input$IDs) %>% (ggplot(aes(y = over20x, x = "")) + geom_point() + geom_boxplot(aes(group = mapped_IDs)))
     
   })
 }
