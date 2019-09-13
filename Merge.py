@@ -1,19 +1,31 @@
 #!/usr/bin/python
-import os, sys, csv, glob
+import os, sys, csv, glob, re, subprocess
 import pandas as pd
-
-#Convert text files to csv files and add column headers "Genes", "above20x" and "average" to each file------------------------
-
 from pandas import read_csv
 
-import glob
-for file in glob.glob("/home/rduffin/Desktop/R_projects/*new.csv"):
-    df = read_csv(file, header=None, sep=',')
-    df.columns = ["Genes", "above20x"]
+#Convert text files to csv files and add column headers "Genes", "above20x" and "toremove" to each file-----------------------------
+
+filenames = glob.glob("/home/rduffin/Desktop/R_projects/*.chanjo_txt") #grab filenames
+
+for file in glob.glob("/home/rduffin/Desktop/R_projects/*.chanjo_txt"):
+    df = read_csv(file, header=None, sep='\t')
+    df.columns = ["Genes", "above20x", "toremove"]
+    df["PatientID"] = ""
     df.to_csv(file, index=False) 
 
+#Add patient IDs to the ID column ---------------------------------------------------------------------------------------------NEEDS WORK!
 
-#Merge data frames by "Genes" using outer join------------------------------------------- merges them into one file but only 2 columns (repeated gene names)
+for fname in filenames:
+    res = re.findall("^(?:[^_]+_){3}([^_]+)", fname)
+    if not res: continue
+    print res[0] # You can append the result to a list
+
+#Run shell script------------------------------------------------------------------------------------------------------------------
+
+subprocess.call(['./Rename.sh']) #Shell script removes third column and renames files
+
+
+#Writes each row of each file to one file-------------------------------------------
 
 df = pd.DataFrame(columns=["Genes", "above20x"]) #Create empty database with which to merge
 df.to_csv(r"/home/rduffin/Desktop/R_projects/merged.csv", index = None, header=True) #write df to csv
