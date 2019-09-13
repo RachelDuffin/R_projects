@@ -9,7 +9,7 @@ done
 #Remove column 3 ---------------------------------------
 n=1; 
 for f in *old.txt; do 
-    awk '{print $1", "$2}' "$f" > "$((n))new.txt"
+    awk '{print $1", "$2}' "$f" > "$((n))new.csv"
      ((n++))
 done
 
