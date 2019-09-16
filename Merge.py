@@ -1,29 +1,15 @@
 #!/usr/bin/python
 import os, sys, csv, glob, re, subprocess
 import pandas as pd
-from pandas import read_csv
+import numpy as np
 
-#Convert text files to csv files and add column headers "Genes", "above20x" and "toremove" to each file-----------------------------
-
-filenames = glob.glob("/home/rduffin/Desktop/R_projects/*.chanjo_txt") #grab filenames
+#Add column headers, remove average column and add new patientID column. Rename files as copies. Add the patient IDs in a column. ----------------------------- DONE !
 
 for file in glob.glob("/home/rduffin/Desktop/R_projects/*.chanjo_txt"):
-    df = read_csv(file, header=None, sep='\t')
-    df.columns = ["Genes", "above20x", "toremove"]
-    df["PatientID"] = ""
-    df.to_csv(file, index=False) 
-
-#Add patient IDs to the ID column ---------------------------------------------------------------------------------------------NEEDS WORK!
-
-for fname in filenames:
-    res = re.findall("^(?:[^_]+_){3}([^_]+)", fname)
-    if not res: continue
-    print res[0] # You can append the result to a list
-
-#Run shell script------------------------------------------------------------------------------------------------------------------
-
-subprocess.call(['./Rename.sh']) #Shell script removes third column and renames files
-
+    df = pd.read_csv(file, header = None, names=["Genes", "above20x", "average"], usecols=['Genes', "above20x"], sep = '\t') 
+    df ['patientID'] = file.split("_")[3]
+    outfile = file.replace("chanjo_txt", "copy_chanjo_txt")
+    df.to_csv(outfile, index=False) #write to CSV
 
 #Writes each row of each file to one file-------------------------------------------
 
