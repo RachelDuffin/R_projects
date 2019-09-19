@@ -7,7 +7,6 @@ import numpy as np
 
 db = pd.read_csv("genesymbols.csv", index_col=None) #Read genesymbols database
 db.columns=["Gene", "Symbols"] #Assign column names to db
-db.to_csv("genesymbolscopy.csv", index = False) #writes dataframe to csv- creates copy of original file with column names added
 
 #Prepare all patient data files for merging and concatenate------------------------------------------------------------------------------!
 
