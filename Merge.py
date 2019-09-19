@@ -3,31 +3,22 @@ import os, sys, csv, glob, re, subprocess
 import pandas as pd
 import numpy as np
 
-#Add column headers, remove average column and add new patientID column. Rename files as copies. Add the patient IDs in a column. ----------------------------- DONE !
+#Import genesymbols and assign new header names-------------------------------------------------------------------------------------------------------------------
 
-for file in glob.glob("/home/rduffin/Desktop/R_projects/*.chanjo_txt"):
-    df = pd.read_csv(file, header = None, names=["Genes", "above20x", "average"], usecols=['Genes', "above20x"], sep = '\t') 
-    df ['sampleID'] = file.split("_")[3]
-    outfile = file.replace("chanjo_txt", "copy_chanjo_txt")
-    df.to_csv(outfile, index=False) #write to CSV
+db = pd.read_csv("genesymbols.csv", index_col=None) #Read genesymbols database
+db.columns=["Genes", "Symbols"]
+db.to_csv("genesymbolscopy.csv", index = False)
 
-#Writes each row of each file to one file-------------------------------------------------------------------------------------------------------------
-
-filenames = glob.glob("/home/rduffin/Desktop/R_projects/*copy_chanjo_txt")
+#Adds column headers, removes average column, adds ID column and merges all files------------------------------------------------------------------------------!
 
 li = []
 
-for filename in filenames:
-    df = pd.read_csv(filename, index_col=None)
+for file in glob.glob("/home/rduffin/Desktop/R_projects/*.chanjo_txt"):
+    df = pd.read_csv(file, header = None, names=["Genes", "above20x", "average"], usecols=['Genes', "above20x"], delimiter='\t') 
+    df ['sampleID'] = file.split("_")[3]
     li.append(df)
 
 merged = pd.concat(li, axis=0, ignore_index=True)
-merged.to_csv(r"/home/rduffin/Desktop/R_projects/merged.csv", index = None, header=True) #write df to csv
-
-#Give new header names for genesymbols file-------------------------------------------------------------------------------------------------------------------
-db = pd.read_csv("genesymbols.csv", index_col=None) #Read genesymbols database
-new_header = ['Genes', 'Symbols'] 
-db.to_csv("genesymbolscopy.csv", index = None, header=new_header)
-
+merged.to_csv("merged.csv", index=None, header=True) #write merged dataframe to CS
 
 #Merge the dataframe with the database gene symbols/Entrez IDs-----------------------------------------------------------------------------------------
