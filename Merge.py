@@ -3,22 +3,26 @@ import os, sys, csv, glob, re, subprocess
 import pandas as pd
 import numpy as np
 
-#Import genesymbols and assign new header names-------------------------------------------------------------------------------------------------------------------
+#Prepare the genesymbols.csv file for merging-------------------------------------------------------------------------------------------------------------------
 
 db = pd.read_csv("genesymbols.csv", index_col=None) #Read genesymbols database
-db.columns=["Genes", "Symbols"]
-db.to_csv("genesymbolscopy.csv", index = False)
+db.columns=["Gene", "Symbols"] #Assign column names to db
+db.to_csv("genesymbolscopy.csv", index = False) #writes dataframe to csv- creates copy of original file with column names added
 
-#Adds column headers, removes average column, adds ID column and merges all files------------------------------------------------------------------------------!
+#Prepare all patient data files for merging and concatenate------------------------------------------------------------------------------!
 
 li = []
 
-for file in glob.glob("/home/rduffin/Desktop/R_projects/*.chanjo_txt"):
-    df = pd.read_csv(file, header = None, names=["Genes", "above20x", "average"], usecols=['Genes', "above20x"], delimiter='\t') 
-    df ['sampleID'] = file.split("_")[3]
-    li.append(df)
+for file in glob.glob("/home/rduffin/Desktop/R_projects/*.chanjo_txt"): #creates a list of filenames to use in the loop
+    df = pd.read_csv(file, header = None, names=["Gene", "above20x", "average"], usecols=['Gene', "above20x"], delimiter='\t') #reads each csv file
+    df = df.astype('str') #converts dataframe from int to str 
+    df ['Sample'] = file.split("_")[3] #splits file name by _ and adds third item from split to a new column named 'Sample' for each dataframe
+    li.append(df) #appends each dataframe to li
 
-merged = pd.concat(li, axis=0, ignore_index=True)
-merged.to_csv("merged.csv", index=None, header=True) #write merged dataframe to CS
+merged = pd.concat(li, axis=0, ignore_index=True) #concatenates all dataframes in li  
 
-#Merge the dataframe with the database gene symbols/Entrez IDs-----------------------------------------------------------------------------------------
+#Add gene symbols ready for use in the webapp-----------------------------------------------------------------------------------------
+
+new = pd.merge(merged, db, how="left", on="Gene") #Perform left merge on "Gene"
+final = new[['Sample', 'Gene', 'above20x']] #Create new dataframe with necessary columns in correct order
+final.to_csv("forboxplot.csv", index = False) #Write to a csv file ready for the app
