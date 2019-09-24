@@ -5,15 +5,13 @@ library(plotly)
 library(org.Hs.eg.db)
 library(dplyr)
 
+#Import data------------------------------------------------------------------------------------------------
 setwd("/home/rduffin/Desktop/R_projects")
-mydata <- read.table("merged.csv", header = TRUE, sep = ",") #create data table of collated data
-mydata <- mydata %>% mutate_all(as.character) #Convert to characters
-genesymbols <- read.table("genesymbols.csv", header = TRUE, sep = ",") #create data table of gene symbols
+df <- read.table("forboxplot.csv", header = TRUE, sep = ",") #create data table of collated data
+#mydata <- mydata %>% mutate_all(as.character) #Convert to characters
+genename <- read.table("names.csv", header = TRUE)
 
-#Map Entrez Identifiers to IDs in mydata
-mapped_IDs <- as.character(mapIds(genesymbols, mydata$Genes, 'SYMBOL', 'ENTREZID'))
-mydata <- cbind(mapped_IDs, mydata$over20x) #Bind mapped_IDs to mydata
-rownames(mydata) <- c() #Remove rownames from data
+#UI -----------------------------------------------------------------------------------------------------------
 
 #Define UI for dataset viewer application
 ui <- pageWithSidebar(
@@ -24,24 +22,24 @@ ui <- pageWithSidebar(
   # Sidebar with controls to select a dataset and specify the number
   # of observations to view
   sidebarPanel(
-    selectInput(inputId = "IDs", label = "Enter HGNC gene symbol:", 
-                choices = mapped_IDs, multiple = FALSE)),
+    selectizeInput(inputId = "gene", label = "Enter HGNC gene symbol:", 
+                choices = genename, multiple = FALSE, options=list(placeholder ='Gene Symbol'))),
   mainPanel(h3("% of bases above 20X"),
-            h4(textOutput("caption")),
-            plotOutput("myBoxplot"),
-            h6("Box plot shows 1st-3rd quartile, with the median value represented by a horizontal line. Outliers are defined as data points less than or greater than 1.5 times the interquartile range beyond the 1st and 3rd quartiles respectively, and are represented by dots. Whiskers show the range of inliers. Coverage calculated for RefSeq exonic bases +/- 5bp. N = 100 exomes (Agilent SureSelect Clinical Research Exome)."))
+            plotOutput(outputId="myBoxplot"),
+            h4("Box plot shows 1st-3rd quartile, with the median value represented by a horizontal line. Outliers are defined as data points less than or greater than 1.5 times the interquartile range beyond the 1st and 3rd quartiles respectively, and are represented by dots. Whiskers show the range of inliers. Coverage calculated for RefSeq exonic bases +/- 5bp. N = 100 exomes (Agilent SureSelect Clinical Research Exome)."))
 
 )
   
 #Data preprocessing---------------------------------------
 
 # Define server logic required to generate and plot boxplots
-server <- function(input, output, session) {
+server <- function(input, output) {
 
-  output$caption <- renderText(input$IDs)
+  output$caption <- renderText(input$gene)
   
-  output$myBoxplot <- renderPlot({filter(mydata, attributes(mapped_IDs) == input$IDs) %>% (ggplot(aes(y = over20x, x = "")) + geom_point() + geom_boxplot(aes(group = mapped_IDs)))
-    
+  output$myBoxplot <- renderPlot({dfsubset <- filter(df, Gene == input$gene) 
+  p <- (ggplot(dfsubset, aes(x='', y='above20x')) + geom_boxplot(aes(group = Gene))) + geom_point() 
+  print(p)
   })
 }
 
