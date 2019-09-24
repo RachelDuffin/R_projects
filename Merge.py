@@ -31,7 +31,7 @@ final.to_csv("forboxplot.csv", index = False) #Write to a csv file ready for the
 #Create list of gene names (no repeats) ----------------------------------------------------------------------------------------------------------------------------------------
 my_list = final["Gene"].values #Creates list of gene names from dataframe
 names = np.unique(my_list) #finds unique gene names and returns sorted elements
-np.savetxt("names.csv", names, fmt='%s') #Write numpy array to a csv file ready for the app
+np.savetxt("names.csv", names, header = "Gene", fmt='%s') #Write numpy array to a csv file ready for the app
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
