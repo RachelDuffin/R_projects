@@ -9,7 +9,10 @@ library(dplyr)
 setwd("/home/rduffin/Desktop/R_projects")
 df <- read.table("forboxplot.csv", header = TRUE, sep = ",") #create data table of collated data
 #mydata <- mydata %>% mutate_all(as.character) #Convert to characters
-genename <- read.table("names.csv", header = TRUE)
+genename <- read.table("names.csv", header = TRUE) 
+
+
+#FOR SOME REASON APP IS ONLY SHOWING GENES STARTING WITH A AS AN OPTION
 
 #UI -----------------------------------------------------------------------------------------------------------
 
