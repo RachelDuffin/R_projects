@@ -10,7 +10,7 @@ db.columns=["Entrez", "Gene"] #Assign column names to db
 
 #Prepare all patient data files for merging and concatenate--------------------------------------------------------------------------------------------------------------------
 
-li = []
+li = [] #creates empty list
 
 for file in glob.glob("/home/rduffin/Desktop/R_projects/*.chanjo_txt"): #creates a list of filenames to use in the loop
     df = pd.read_csv(file, header = None, names=["Entrez", "above20x", "average"], usecols=['Entrez', "above20x"], delimiter='\t') #reads each csv file
