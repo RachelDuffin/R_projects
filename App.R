@@ -22,18 +22,17 @@ ui <- pageWithSidebar(
   # Application title
   headerPanel("Horizontal coverage for WES"),
   
-  # Sidebar with controls to select a dataset and specify the number
-  # of observations to view
+  # Sidebar with controls to select dataset of specific gene
   sidebarPanel(
     selectizeInput(inputId = "gene", label = "Enter HGNC gene symbol:", 
-                choices = genename, multiple = FALSE, options=list(placeholder ='Gene Symbol'))),
+                choices = genename, multiple = FALSE, options=list(placeholder ='Gene Symbol', maxOptions = 100000))),
   mainPanel(h3("% of bases above 20X"),
             plotOutput(outputId="myBoxplot"),
             h4("Box plot shows 1st-3rd quartile, with the median value represented by a horizontal line. Outliers are defined as data points less than or greater than 1.5 times the interquartile range beyond the 1st and 3rd quartiles respectively, and are represented by dots. Whiskers show the range of inliers. Coverage calculated for RefSeq exonic bases +/- 5bp. N = 100 exomes (Agilent SureSelect Clinical Research Exome)."))
 
 )
   
-#Data preprocessing---------------------------------------
+#Server---------------------------------------
 
 # Define server logic required to generate and plot boxplots
 server <- function(input, output) {
