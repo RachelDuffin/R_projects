@@ -26,13 +26,11 @@ new = pd.merge(merged, db, how="left", on="Entrez") #Perform left merge on "Gene
 new.replace('', np.nan, inplace=True) #Replace blank cells with NaN values
 new.dropna(subset=['Gene'], inplace=True) #Drop rows that contain NaN from data frame 
 final = new[['Sample', 'Gene', 'above20x']] #Create new dataframe with necessary columns in correct order
-final.to_csv("forboxplot.csv", index = False) #Write to a csv file ready for the app
+final.to_csv("forboxplot.txt", header=True, index=None, sep=' ', mode='a') #Write to a text file ready for the app
 
 #Create list of gene names (no repeats) ----------------------------------------------------------------------------------------------------------------------------------------
-my_list = final["Gene"].values #Creates list of gene names from dataframe
+my_list = final["Gene"] #Creates list of gene names from dataframe
 names = np.unique(my_list) #finds unique gene names and returns sorted elements
 genenames = pd.DataFrame({"Gene" :names}) #converts to dataframe with header "Gene"
-genenames.to_csv("names.csv", index=False) #writes csv file 
+genenames.to_csv("names.txt", header=True, index=None, sep=' ', mode='a') #Write to a text file ready for the app
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
