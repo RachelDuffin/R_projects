@@ -3,6 +3,11 @@ import os, sys, csv, glob, re, subprocess
 import pandas as pd
 import numpy as np
 
+#Remove previous saved files of the same name (so script doesn't append)-------------------------------------------------------------------------------------------------------
+
+os.remove("names.txt")
+os.remove("forboxplot.txt")
+
 #Prepare the genesymbols.csv file for merging----------------------------------------------------------------------------------------------------------------------------------
 
 db = pd.read_csv("genesymbols.csv", index_col=None) #Read genesymbols database
@@ -29,8 +34,8 @@ final = new[['Sample', 'Gene', 'above20x']] #Create new dataframe with necessary
 final.to_csv("forboxplot.txt", header=True, index=None, sep=' ', mode='a') #Write to a text file ready for the app
 
 #Create list of gene names (no repeats) ----------------------------------------------------------------------------------------------------------------------------------------
+
 my_list = final["Gene"] #Creates list of gene names from dataframe
 names = np.unique(my_list) #finds unique gene names and returns sorted elements
 genenames = pd.DataFrame({"Gene" :names}) #converts to dataframe with header "Gene"
 genenames.to_csv("names.txt", header=True, index=None, sep=' ', mode='a') #Write to a text file ready for the app
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
